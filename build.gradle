@@ -1,0 +1,30 @@
+// Сборка: ./gradlew war  ->  build/libs/lab3.war
+//
+// Структура проекта:
+//   src/main/java   Java-код (сервлеты, бин, проверка области)
+//   web/            веб-часть: JSP, web.xml, статика (css, js, картинка) — попадает в war как есть
+//   server/         скрипты для Helios: run.sh и setup-wildfly.sh (в war не попадают)
+
+plugins {
+    id 'war'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // compileOnly: API нужен только для компиляции, реализацию даёт WildFly.
+    // Если положить этот jar внутрь war, он будет конфликтовать с серверным.
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17          // на Helios Java 17; собирать можно любым JDK 17+
+    options.encoding = 'UTF-8'
+}
+
+war {
+    webAppDirectory = file('web')   // по умолчанию было бы src/main/webapp
+    archiveFileName = 'lab3.war'    // имя war без .war = путь приложения: /lab3
+}
